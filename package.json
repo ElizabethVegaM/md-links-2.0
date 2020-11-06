@@ -1,4 +1,30 @@
 {
   "name": "md-links",
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "description": "## Índice",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ElizabethVegaM/md-links-2.0.git"
+  },
+  "keywords": [
+    "markdown",
+    "links",
+    "library"
+  ],
+  "author": "Elizabeth Vega",
+  "license": "ISC",
+  "bin": {
+    "md-lnpminks": "./cli.js"
+  },
+  "bugs": {
+    "url": "https://github.com/ElizabethVegaM/md-links-2.0/issues"
+  },
+  "homepage": "https://github.com/ElizabethVegaM/md-links-2.0#readme"
 }
