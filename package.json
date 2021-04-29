@@ -21,10 +21,20 @@
   "author": "Elizabeth Vega",
   "license": "ISC",
   "bin": {
-    "md-lnpminks": "./cli.js"
+    "md-links": "./cli.js"
   },
   "bugs": {
     "url": "https://github.com/ElizabethVegaM/md-links-2.0/issues"
   },
-  "homepage": "https://github.com/ElizabethVegaM/md-links-2.0#readme"
+  "homepage": "https://github.com/ElizabethVegaM/md-links-2.0#readme",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "marked": "^1.2.3",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.12.1",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.1"
+  }
 }
