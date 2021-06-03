@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-const path = require('path');
-const chalk = require('chalk');
+// const path = require('path');
+// const chalk = require('chalk');
 const mdLinks = require('./index');
 
 const [,, ...args] = process.argv;
@@ -9,4 +9,6 @@ const options = {
   stats: args.includes('--stats'),
 };
 
-mdLinks(args[0], options);
+mdLinks(args[0], options)
+  .then((links) => console.log(links))
+  .catch((error) => console.error(error));
