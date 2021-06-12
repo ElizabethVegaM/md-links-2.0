@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+/* eslint-disable array-callback-return */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-console */
 /* eslint-disable no-param-reassign */
@@ -13,9 +15,6 @@ const checkPathType = (myPath) => {
 
 const checkExt = (file) => path.extname(file);
 
-const isFolder = (folder) => {
-  console.log('directorio', folder);
-};
 const linksExtractor = (file, markdown, line) => {
   const links = [];
   const renderer = new marked.Renderer();
@@ -38,12 +37,27 @@ const isFile = (file) => new Promise((resolve, reject) => {
   if (checkExt(file) === '.md') {
     fs.readFile(file, 'utf8', (err, data) => {
       if (err) reject(err);
-      data = data.split('\n').map((line, index) => linksExtractor(file, line, index + 1)).filter((el) => el.length !== 0).reduce((value1, value2) => value1.concat(value2));
+      data = data.split('\n').map((line, index) => linksExtractor(file, line, index + 1)).filter((el) => el.length !== 0);
+      if (data.length !== 0) data = data.reduce((value1, value2) => value1.concat(value2));
       resolve(data);
     });
   } else {
     reject(new Error('File must be Markdown'));
   }
+});
+
+const isFolder = (folder, options) => new Promise((resolve, reject) => {
+  fs.readdir(folder, 'utf8', (err, files) => {
+    const folderPromises = files.map((file) => {
+      const filePath = `${folder}/${file}`;
+      if (checkPathType(filePath) === 'folder') mdLinks(filePath, options);
+      if (checkPathType(filePath) === 'file') return isFile(filePath);
+    });
+    Promise.all(folderPromises).then((filesData) => {
+      const reduced = filesData.filter((el) => el && el.length !== 0).reduce((value1, value2) => value1.concat(value2));
+      resolve(reduced);
+    }).catch((error) => reject(error));
+  });
 });
 
 const fetchLinks = (url) => new Promise((resolve, reject) => {
@@ -60,10 +74,8 @@ const fetchLinks = (url) => new Promise((resolve, reject) => {
     });
 });
 
-module.exports = (myPath, options) => new Promise((resolve, reject) => {
-  // console.log(options);
+const mdLinks = (myPath, options) => new Promise((resolve, reject) => {
   myPath = path.normalize(path.resolve(myPath));
-  // console.log(myPath);
   if (!fs.existsSync(myPath)) {
     reject(new Error('The path does not exists. Must enter an existing path'));
   } else {
@@ -71,7 +83,7 @@ module.exports = (myPath, options) => new Promise((resolve, reject) => {
       case 'file':
         isFile(myPath)
           .then((linksArr) => {
-            if (options.validate || (options.validate && options.stats)) {
+            if (options.validate) {
               const fetchedData = linksArr.map((link) => fetchLinks(link));
               Promise.all(fetchedData).then((fetchArr) => {
                 for (let i = 0; i < linksArr.length; i++) {
@@ -86,10 +98,13 @@ module.exports = (myPath, options) => new Promise((resolve, reject) => {
           .catch((err) => reject(err));
         break;
       case 'folder':
-        isFolder(myPath);
+        isFolder(myPath)
+          .then((totalLinks) => console.log(totalLinks));
         break;
       default:
         break;
     }
   }
 });
+
+module.exports = mdLinks;
