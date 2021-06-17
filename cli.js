@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// const path = require('path');
 // const chalk = require('chalk');
 const mdLinks = require('./index');
 
@@ -10,5 +9,7 @@ const options = {
 };
 
 mdLinks(args[0], options.validate)
-  .then((links) => console.log(links))
+  .then((links) => {
+    console.log(links);
+  })
   .catch((error) => console.error(error));
