@@ -17,7 +17,6 @@ const linksExtractor = (file, markdown, line) => {
   const links = [];
   const renderer = new marked.Renderer();
   renderer.link = (href, title, text) => {
-    // if con starts with para filtrar los titulos
     if (!href.startsWith('#')) {
       links.push({
         href,
