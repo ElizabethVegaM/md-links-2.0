@@ -9,6 +9,6 @@ const options = {
   stats: args.includes('--stats'),
 };
 
-mdLinks(args[0], options)
+mdLinks(args[0], options.validate)
   .then((links) => console.log(links))
   .catch((error) => console.error(error));

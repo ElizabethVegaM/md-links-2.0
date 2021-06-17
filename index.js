@@ -1,3 +1,5 @@
+/* eslint-disable no-case-declarations */
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable max-len */
 /* eslint-disable array-callback-return */
 /* eslint-disable no-plusplus */
@@ -38,7 +40,7 @@ const isFile = (file) => new Promise((resolve, reject) => {
     fs.readFile(file, 'utf8', (err, data) => {
       if (err) reject(err);
       data = data.split('\n').map((line, index) => linksExtractor(file, line, index + 1)).filter((el) => el.length !== 0);
-      if (data.length !== 0) data = data.reduce((value1, value2) => value1.concat(value2));
+      if (data.length !== 0) data = data.flat();
       resolve(data);
     });
   } else {
@@ -46,18 +48,26 @@ const isFile = (file) => new Promise((resolve, reject) => {
   }
 });
 
-const isFolder = (folder, options) => new Promise((resolve, reject) => {
-  fs.readdir(folder, 'utf8', (err, files) => {
-    const folderPromises = files.map((file) => {
-      const filePath = `${folder}/${file}`;
-      if (checkPathType(filePath) === 'folder') mdLinks(filePath, options);
-      if (checkPathType(filePath) === 'file') return isFile(filePath);
-    });
-    Promise.all(folderPromises).then((filesData) => {
-      const reduced = filesData.filter((el) => el && el.length !== 0).reduce((value1, value2) => value1.concat(value2));
-      resolve(reduced);
-    }).catch((error) => reject(error));
-  });
+const getFiles = (folder) => {
+  const files = [];
+  for (const file of fs.readdirSync(folder)) {
+    const fullFile = `${folder}/${file}`;
+    if (checkPathType(fullFile) === 'folder') {
+      getFiles(fullFile).forEach((el) => files.push(`${file}/${el}`));
+    } else {
+      files.push(file);
+    }
+  }
+  return files;
+};
+
+const isFolder = (folder) => new Promise((resolve, reject) => {
+  const files = getFiles(folder);
+  const filePromises = files.map((file) => isFile(`${folder}/${file}`));
+  Promise.all(filePromises).then((each) => {
+    resolve(each.filter((arr) => arr.length !== 0).flat());
+  })
+    .catch((err) => reject(err));
 });
 
 const fetchLinks = (url) => new Promise((resolve, reject) => {
@@ -74,7 +84,7 @@ const fetchLinks = (url) => new Promise((resolve, reject) => {
     });
 });
 
-const mdLinks = (myPath, options) => new Promise((resolve, reject) => {
+const fileOrFolder = (myPath, validate) => new Promise((resolve, reject) => {
   myPath = path.normalize(path.resolve(myPath));
   if (!fs.existsSync(myPath)) {
     reject(new Error('The path does not exists. Must enter an existing path'));
@@ -82,29 +92,34 @@ const mdLinks = (myPath, options) => new Promise((resolve, reject) => {
     switch (checkPathType(myPath)) {
       case 'file':
         isFile(myPath)
-          .then((linksArr) => {
-            if (options.validate) {
-              const fetchedData = linksArr.map((link) => fetchLinks(link));
-              Promise.all(fetchedData).then((fetchArr) => {
-                for (let i = 0; i < linksArr.length; i++) {
-                  Object.assign(linksArr[i], fetchArr[i]);
-                }
-                resolve(linksArr);
-              });
-            } else {
-              resolve(linksArr);
-            }
-          })
+          .then((linksArr) => resolve(linksArr))
           .catch((err) => reject(err));
         break;
       case 'folder':
-        isFolder(myPath)
-          .then((totalLinks) => console.log(totalLinks));
+        isFolder(myPath, validate)
+          .then((totalLinks) => resolve(totalLinks))
+          .catch((err) => reject(err));
         break;
       default:
         break;
     }
   }
+});
+
+const mdLinks = (myPath, validate) => new Promise((resolve, reject) => {
+  fileOrFolder(myPath, validate).then((linksArr) => {
+    if (validate) {
+      const fetchedData = linksArr.map((link) => fetchLinks(link));
+      Promise.all(fetchedData).then((fetchArr) => {
+        for (let i = 0; i < linksArr.length; i++) {
+          Object.assign(linksArr[i], fetchArr[i]);
+        }
+        resolve(linksArr);
+      });
+    } else {
+      resolve(linksArr);
+    }
+  });
 });
 
 module.exports = mdLinks;
