@@ -19,6 +19,7 @@ Debes instalar el módulo con npm
 
 ```
 npm install https://github.com/ElizabethVegaM/md-links-2.0
+```
 
 ## Snippets de uso 🎁
 
