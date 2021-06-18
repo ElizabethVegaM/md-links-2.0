@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /* eslint-disable no-plusplus */
 /* eslint-disable no-console */
-// const chalk = require('chalk');
+const chalk = require('chalk');
 const mdLinks = require('./index');
 
-const [,, ...args] = process.argv;
+const [, , ...args] = process.argv;
 const options = {
   validate: args.includes('--validate'),
   stats: args.includes('--stats'),
@@ -32,13 +32,39 @@ mdLinks(args[0], options.validate)
   .then((links) => {
     if (options.stats) {
       const statsInfo = stats(links);
+      console.log(chalk.bold('These are the stats for the given path: \n\n'));
       if (options.validate) {
-        console.log(`Total Links: ${statsInfo.totalLinks}, Unique: ${statsInfo.uniqueLinks}, Broken: ${statsInfo.brokenLinks}`);
+        console.log(
+          `${chalk.bgGrey.bold('Total')}: ${chalk.bold(
+            statsInfo.totalLinks,
+          )}, ${chalk.bgBlueBright.bold('Unique')}: ${chalk.bold(
+            statsInfo.uniqueLinks,
+          )}, ${chalk.bgRed.bold('Broken')}: ${chalk.bold(
+            statsInfo.brokenLinks,
+          )}`,
+        );
       } else {
-        console.log(`Total Links: ${statsInfo.totalLinks}, Unique: ${statsInfo.uniqueLinks}`);
+        console.log(
+          `${chalk.bgGrey.bold('Total')}: ${chalk.bold(
+            statsInfo.totalLinks,
+          )}, ${chalk.bgBlueBright.bold('Unique')}: ${chalk.bold(
+            statsInfo.uniqueLinks,
+          )}`,
+        );
       }
     } else {
-      console.log(links);
+      console.log(chalk.bold('These are the links found in the given path:'));
+      links.forEach((link) => {
+        if (options.validate) {
+          console.log(
+            `${chalk.bgGrey('href:')} ${chalk.magenta(link.href)}\n${chalk.bgGrey('text:')} ${chalk.cyan(link.text)}\n${chalk.bgGrey('file:')} ${link.file} - ${link.line}\n${chalk.bgGrey('code:')} ${link.ok === 'OK' ? chalk.green(`${link.status} - ${link.ok}`) : chalk.red(`${link.status} - ${link.ok}`)}\n\n`,
+          );
+        } else {
+          console.log(
+            `${chalk.bgGrey('href:')} ${chalk.magenta(link.href)}\n${chalk.bgGrey('text:')} ${chalk.cyan(link.text)}\n${chalk.bgGrey('file:')} ${chalk.green(link.file)} - ${chalk.green(link.line)}\n\n`,
+          );
+        }
+      });
     }
   })
   .catch((error) => console.error(error));

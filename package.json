@@ -29,6 +29,7 @@
   "homepage": "https://github.com/ElizabethVegaM/md-links-2.0#readme",
   "dependencies": {
     "chalk": "^4.1.0",
+    "cli-table": "^0.3.6",
     "marked": "^2.0.0",
     "node-fetch": "^2.6.1"
   },
