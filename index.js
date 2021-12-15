@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-plusplus */
@@ -30,18 +31,23 @@ const linksExtractor = (file, markdown, line) => {
   return links;
 };
 
-const isFile = (file) => new Promise((resolve, reject) => {
+const isFile = (file) => {
+  let linksArr = null;
   if (checkExt(file) === '.md') {
-    fs.readFile(file, 'utf8', (err, data) => {
-      if (err) reject(err);
-      let linksArr = data.split('\n').map((line, index) => linksExtractor(file, line, index + 1)).filter((el) => el.length !== 0);
+    try {
+      const data = fs.readFileSync(file, 'utf8');
+      linksArr = data
+        .split('\n')
+        .map((line, index) => linksExtractor(file, line, index + 1))
+        .filter((el) => el.length !== 0);
       if (linksArr.length !== 0) linksArr = linksArr.flat();
-      resolve(linksArr);
-    });
-  } else {
-    reject(new Error('File must be Markdown'));
+      return linksArr;
+    } catch (err) {
+      throw new Error('File must be Markdown');
+    }
   }
-});
+  return linksArr;
+};
 
 // example taken from https://stackoverflow.com/a/65938541
 const getFiles = (folder) => {
@@ -60,9 +66,10 @@ const getFiles = (folder) => {
 const isFolder = (folder) => new Promise((resolve, reject) => {
   const files = getFiles(folder);
   const filePromises = files.map((file) => isFile(`${folder}/${file}`));
-  Promise.all(filePromises).then((each) => {
-    resolve(each.filter((arr) => arr.length !== 0).flat());
-  })
+  Promise.all(filePromises)
+    .then((each) => {
+      resolve(each.filter((arr) => arr.length !== 0).flat());
+    })
     .catch((err) => reject(err));
 });
 
@@ -83,13 +90,13 @@ const fetchLinks = (url) => new Promise((resolve, reject) => {
 const fileOrFolder = (myPath, validate) => new Promise((resolve, reject) => {
   const absolutePath = path.normalize(path.resolve(myPath));
   if (!fs.existsSync(absolutePath)) {
-    reject(new Error('The path does not exists. Must enter an existing path'));
+    reject(
+      new Error('The path does not exists. Must enter an existing path'),
+    );
   } else {
     switch (checkPathType(absolutePath)) {
       case 'file':
-        isFile(absolutePath)
-          .then((linksArr) => resolve(linksArr))
-          .catch((err) => reject(err));
+        resolve(isFile(absolutePath));
         break;
       case 'folder':
         isFolder(absolutePath)

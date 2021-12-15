@@ -68,3 +68,44 @@ mdLinks(args[0], options.validate)
     }
   })
   .catch((error) => console.error(error));
+
+mdLinks(args[0], options.validate)
+  .then((links) => {
+    if (options.stats) {
+      const statsInfo = stats(links);
+      console.log(chalk.bold('These are the stats for the given path:\n'));
+      if (options.validate) {
+        console.log(
+          `${chalk.bgGrey.bold('Total')}: ${chalk.bold(
+            statsInfo.totalLinks,
+          )}, ${chalk.bgBlueBright.bold('Unique')}: ${chalk.bold(
+            statsInfo.uniqueLinks,
+          )}, ${chalk.bgRed.bold('Broken')}: ${chalk.bold(
+            statsInfo.brokenLinks,
+          )}`,
+        );
+      } else {
+        console.log(
+          `${chalk.bgGrey.bold('Total')}: ${chalk.bold(
+            statsInfo.totalLinks,
+          )}, ${chalk.bgBlueBright.bold('Unique')}: ${chalk.bold(
+            statsInfo.uniqueLinks,
+          )}`,
+        );
+      }
+    } else {
+      console.log(chalk.bold('These are the links found in the given path:'));
+      links.forEach((link) => {
+        if (options.validate) {
+          console.log(
+            `\n${chalk.bgGrey('href:')} ${chalk.magenta(link.href)}\n${chalk.bgGrey('text:')} ${chalk.cyan(link.text)}\n${chalk.bgGrey('file:')} ${link.file} - ${link.line}\n${chalk.bgGrey('code:')} ${link.ok === 'OK' ? chalk.green(`${link.status} - ${link.ok}`) : chalk.red(`${link.status} - ${link.ok}`)}`,
+          );
+        } else {
+          console.log(
+            `\n${chalk.bgGrey('href:')} ${chalk.magenta(link.href)}\n${chalk.bgGrey('text:')} ${chalk.cyan(link.text)}\n${chalk.bgGrey('file:')} ${chalk.green(link.file)} - ${chalk.green(link.line)}`,
+          );
+        }
+      });
+    }
+  })
+  .catch((error) => console.error(error));

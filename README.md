@@ -70,10 +70,8 @@ Usando --stats
 ```
 Total: 9, Unique: 3
 ```
-```
 
 Usando --validate y --stats (pueden usarse tanto juntos como separados)
 ```
 Total: 9, Unique: 1, Broken: 0
-```
 ```
