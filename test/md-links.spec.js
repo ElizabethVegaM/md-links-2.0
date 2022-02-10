@@ -1,7 +1,15 @@
-const mdLinks = require('..');
+const mdLinks = require('../index');
+// const fetch = require('node-fetch');
 
-describe('mdLinks', () => {
-  it('should...', () => {
-    console.log('FIX ME!');
-  });
-});
+// jest.mock(fetch);
+
+
+
+// describe('mdLinks', () => {
+//   it('should throw an error when no path given', async () => {
+//     fetch.get.mockResolvedValue({
+
+//     })
+//   });
+// });
+

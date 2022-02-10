@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "test"
+    "test": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -34,8 +34,10 @@
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
+    "babel-jest": "^27.4.5",
     "eslint": "^7.12.1",
     "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-plugin-import": "^2.22.1"
+    "eslint-plugin-import": "^2.22.1",
+    "jest": "^27.4.5"
   }
 }

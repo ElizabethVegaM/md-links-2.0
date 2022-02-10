@@ -87,7 +87,7 @@ const fetchLinks = (url) => new Promise((resolve, reject) => {
     });
 });
 
-const fileOrFolder = (myPath, validate) => new Promise((resolve, reject) => {
+const fileOrFolder = (myPath) => new Promise((resolve, reject) => {
   const absolutePath = path.normalize(path.resolve(myPath));
   if (!fs.existsSync(absolutePath)) {
     reject(
@@ -99,9 +99,7 @@ const fileOrFolder = (myPath, validate) => new Promise((resolve, reject) => {
         resolve(isFile(absolutePath));
         break;
       case 'folder':
-        isFolder(absolutePath)
-          .then((totalLinks) => resolve(totalLinks))
-          .catch((err) => reject(err));
+        resolve(isFolder(absolutePath));
         break;
       default:
         break;
@@ -110,7 +108,8 @@ const fileOrFolder = (myPath, validate) => new Promise((resolve, reject) => {
 });
 
 const mdLinks = (myPath, validate) => new Promise((resolve, reject) => {
-  fileOrFolder(myPath, validate).then((linksArr) => {
+  if (!myPath) reject(new Error('The "path" argument must be of type string'))
+  fileOrFolder(myPath).then((linksArr) => {
     if (validate) {
       const fetchedData = linksArr.map((link) => fetchLinks(link));
       Promise.all(fetchedData).then((fetchArr) => {
@@ -122,7 +121,8 @@ const mdLinks = (myPath, validate) => new Promise((resolve, reject) => {
     } else {
       resolve(linksArr);
     }
-  });
+  })
+  .catch((err) => reject(err));
 });
 
 module.exports = mdLinks;
