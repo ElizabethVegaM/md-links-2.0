@@ -30,7 +30,7 @@
   "dependencies": {
     "chalk": "^4.1.0",
     "cli-table": "^0.3.6",
-    "marked": "^2.0.0",
+    "marked": "^4.0.10",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
